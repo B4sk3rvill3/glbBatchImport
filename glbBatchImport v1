@@ -1,0 +1,36 @@
+import bpy
+import os
+
+folder_path = r"path here"  # Use raw string or double 
+
+# Get a list of all GLB files in the folder
+glb_files = [f for f in os.listdir(folder_path) if f.endswith('.glb')]
+
+# Loop through each GLB file
+for glb_file in glb_files:
+    # Generate the full path to the GLB file
+    file_path = os.path.join(folder_path, glb_file)
+
+    # Import the GLB file into Blender
+    bpy.ops.import_scene.gltf(filepath=file_path)
+
+    # Create a new collection named after the file
+    collection_name = os.path.splitext(glb_file)[0]  # Remove the file extension
+    new_collection = bpy.data.collections.new(collection_name)
+
+    # Link the new collection to the scene
+    bpy.context.scene.collection.children.link(new_collection)
+
+    # Move the imported objects into the new collection
+    for obj in bpy.context.selected_objects:
+        # Unlink the object from the scene collection
+        bpy.context.scene.collection.objects.unlink(obj)
+
+        # Link the object to the new collection
+        new_collection.objects.link(obj)
+
+    # Deselect all objects
+    bpy.ops.object.select_all(action='DESELECT')
+
+# Print a message to the console when the import is complete
+print("GLB import and collection creation completed.")
